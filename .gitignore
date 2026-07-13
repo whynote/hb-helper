@@ -1,10 +1,7 @@
-# dependencies
-/node_modules
-
-# production
-/dist
-*.zip
-
+node_modules/
+dist/
+.npm-cache/
+qa/
+*.log
 .DS_Store
-
-.env
+Thumbs.db
