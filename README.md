@@ -6,9 +6,9 @@
 
 ## 在线体验
 
-**[打开 ETF 网格策略实验室在线版](https://whynote.github.io/hb-helper/)**
+**[打开 ETF 网格策略实验室在线版](https://raw.githack.com/whynote/hb-helper/etf-grid-lab-v0.1/dist/index.html)**
 
-在线版由 GitHub Pages 自动从 `etf-grid-lab-v0.1` 分支构建。策略数据仍只保存在当前浏览器中；更换浏览器、使用无痕模式或清理站点数据后，已保存策略不会自动同步。
+在线版直接读取 `etf-grid-lab-v0.1` 分支中的静态构建文件，无需在本机启动服务。策略数据仍只保存在当前浏览器中；更换浏览器、使用无痕模式或清理站点数据后，已保存策略不会自动同步。
 
 ## 当前功能
 
