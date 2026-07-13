@@ -77,7 +77,7 @@ function plainNumber(value, digits = 2) {
 }
 
 function routeFromHash() {
-  return window.location.hash === "#create" ? "create" : "dashboard";
+  return window.location.hash.startsWith("#create") ? "create" : "dashboard";
 }
 
 function HelpButton({ helpKey, onOpen }) {
@@ -422,4 +422,315 @@ function StrategyCard({ strategy, onView, onEdit, onToggle, onDelete }) {
           <h2>{strategy.result.name}</h2>
           <span>{strategy.result.code}</span>
         </div>
- #´êÚ$z{-®éÜj×#°¢6öç7BfÆÆ&6´Ö÷VçBÒ4çVÖ&W"†f÷&Òç6ÖÆÂæÖ÷VçEW$w&–B“°¢6öç7Bw&÷W2Ò·Ó° ¢f÷"†6öç7BG—Röb²'6ÖÆÂ"Â&Ö–B"Â&&–r%Ò’°¢6öç7B6öæf–rÒf÷&Õ·G—UÓ°¢w&÷W5·G—UÒÒ6öæf–ræVæ&ÆV@¢ò'V–ÆE&÷w2‡°¢G—RÀ¢–æ—E&–6RÀ¢Ö„G&vF÷vâÀ¢7FW7C¢4çVÖ&W"†6öæf–rç7FW7B’À¢Ö÷VçEW$w&–C¢4çVÖ&W"†6öæf–ræÖ÷VçEW$w&–BÂfÆÆ&6´Ö÷VçB’ÇÂfÆÆ&6´Ö÷VçBÀ¢–æ7&VÖVçE7C¢4çVÖ&W"†6öæf–ræ–æ7&VÖVçE7B’À¢&öf—D×VÇF—ÆS¢4çVÖ&W"†6öæf–rç&öf—D×VÇF—ÆR’À¢W6T‡VæG&VG2À¢Ò¢¢µÓ°¢Ğ ¢6öç7B&÷w2Ò²ââæw&÷W2ç6ÖÆÂÂââæw&÷W2æÖ–BÂââæw&÷W2æ&–uÓ°¢6öç7BÖ„Ö÷VçBÒ&÷VæB€¢&÷w2ç&VGV6R‚‡7VÒÂ&÷r’Óâ7VÒ²&÷ræ'W”Ö÷VçBÂ’À¢"À¢“°¢6öç7BF÷FÅ&öf—BÒ&÷VæB€¢&÷w2ç&VGV6R‚‡7VÒÂ&÷r’Óâ7VÒ²&÷rç&öf—DÖ÷VçBÂ’À¢"À¢“° ¢&WGW&â°¢æÖS¢f÷&ÒææÖRçG&–Ò‚’À¢6öFS¢f÷&Òæ6öFRçG&–Ò‚’À¢–æ—E&–6RÀ¢Ö„G&vF÷vå7C¢4çVÖ&W"†f÷&ÒæÖ„G&vF÷vå7B’À¢w&–DçVÓ¢&÷w2æÆVæwF‚À¢Ö„Ö÷VçBÀ¢F÷FÅ&öf—BÀ¢&WGW&äöä6—FÃ¢Ö„Ö÷VçBò&÷VæB‚‡F÷FÅ&öf—BòÖ„Ö÷VçB’¢Â"’¢À¢w&÷W2À¢Ó°§Ğ ¦W‡÷'BgVæ7F–öâ6ÆöæTf÷&Ò†f÷&Ò’°¢&WGW&â°¢ââæf÷&ÒÀ¢6ÖÆÃ¢²ââæf÷&Òç6ÖÆÂÒÀ¢Ö–C¢²ââæf÷&ÒæÖ–BÒÀ¢&–s¢²ââæf÷&Òæ&–rÒÀ¢Ó°§Ğ
+        <span className={`status-badge ${running ? "running" : "pending"}`}>
+          {running ? "æ‰§è¡Œä¸­" : "æœªæ‰§è¡Œ"}
+        </span>
+      </header>
+      <div className="strategy-metrics">
+        <div><span>ç½‘æ ¼æ•°</span><strong>{strategy.result.gridNum}</strong></div>
+        <div><span>æœ€å¤§è·Œå¹…</span><strong>{number(strategy.result.maxDrawdownPct, 0)}%</strong></div>
+        <div><span>æœ€å¤§æŠ•å…¥</span><strong>Â¥{number(strategy.result.maxAmount)}</strong></div>
+        <div><span>å•è½®åˆ©æ¶¦</span><strong>Â¥{number(strategy.result.totalProfit)}</strong></div>
+      </div>
+      <footer>
+        <button type="button" onClick={onView}>æŸ¥çœ‹è¯¦æƒ…</button>
+        <button type="button" onClick={onEdit}>ç¼–è¾‘</button>
+        <button type="button" onClick={onToggle}>{running ? "è®¾ä¸ºæœªæ‰§è¡Œ" : "å¼€å§‹æ‰§è¡Œ"}</button>
+        <button className="danger-link" type="button" onClick={onDelete}>åˆ é™¤</button>
+      </footer>
+    </article>
+  );
+}
+
+function Dashboard({
+  strategies,
+  onCreate,
+  onView,
+  onEdit,
+  onToggle,
+  onDelete,
+}) {
+  const [filter, setFilter] = useState("all");
+  const counts = {
+    all: strategies.length,
+    running: strategies.filter((item) => item.status === "running").length,
+    pending: strategies.filter((item) => item.status !== "running").length,
+  };
+  const visible = strategies.filter((item) => filter === "all" || item.status === filter);
+
+  return (
+    <main className="dashboard-page">
+      <nav className="status-tabs" aria-label="ç­–ç•¥çŠ¶æ€ç­›é€‰">
+        {[
+          ["all", "å…¨éƒ¨"],
+          ["running", "æ‰§è¡Œä¸­"],
+          ["pending", "æœªæ‰§è¡Œ"],
+        ].map(([key, label]) => (
+          <button
+            key={key}
+            type="button"
+            className={filter === key ? "active" : ""}
+            onClick={() => setFilter(key)}
+          >
+            {label}({counts[key]})
+          </button>
+        ))}
+      </nav>
+
+      <div className="dashboard-content">
+        {!visible.length ? (
+          <div className="empty-notice">
+            {strategies.length
+              ? `æš‚æ— ${filter === "running" ? "æ‰§è¡Œä¸­" : "æœªæ‰§è¡Œ"}çš„ç½‘æ ¼ç­–ç•¥`
+              : "æ‚¨è¿˜æ²¡æœ‰åˆ›å»ºè‡ªå·±çš„ç½‘æ ¼æ•°æ®"}
+          </div>
+        ) : (
+          <div className="strategy-list">
+            {visible.map((strategy) => (
+              <StrategyCard
+                key={strategy.id}
+                strategy={strategy}
+                onView={() => onView(strategy)}
+                onEdit={() => onEdit(strategy)}
+                onToggle={() => onToggle(strategy.id)}
+                onDelete={() => onDelete(strategy.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <footer className="dashboard-footer">
+        <p>
+          æ‚¨æ˜¯ã€æœ¬åœ°ç”¨æˆ·ã€‘ æœ€å¤šå¯ä»¥åˆ›å»º <strong>{MAX_STRATEGIES}</strong> ä¸ªç½‘æ ¼
+          <span>å·²ä½¿ç”¨ {strategies.length}/{MAX_STRATEGIES}</span>
+        </p>
+        <button
+          className="primary-button create-button"
+          type="button"
+          disabled={strategies.length >= MAX_STRATEGIES}
+          onClick={onCreate}
+        >
+          åˆ›å»ºç½‘æ ¼ç­–ç•¥
+        </button>
+      </footer>
+    </main>
+  );
+}
+
+function HelpDialog({ content, onClose }) {
+  if (!content) return null;
+  return (
+    <div className="help-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="help-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="help-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <header>
+          <h2 id="help-title">{content.title}</h2>
+          <button type="button" aria-label="å…³é—­è¯´æ˜" onClick={onClose}>
+            <i className="bi bi-x-lg" aria-hidden="true" />
+          </button>
+        </header>
+        <p>{content.body}</p>
+        <button className="primary-button" type="button" onClick={onClose}>çŸ¥é“äº†</button>
+      </section>
+    </div>
+  );
+}
+
+export function App() {
+  const [page, setPage] = useState(routeFromHash);
+  const [strategies, setStrategies] = useState(readStrategies);
+  const [draft, setDraft] = useState(() => cloneForm(SAMPLE_FORM));
+  const [editingId, setEditingId] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [viewingStrategy, setViewingStrategy] = useState(null);
+  const [help, setHelp] = useState(null);
+  const [toast, setToast] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(strategies));
+  }, [strategies]);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash;
+      setPage(routeFromHash());
+      if (!hash.endsWith("/preview")) setPreview(null);
+      if (!hash.endsWith("/view")) setViewingStrategy(null);
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key !== "Escape") return;
+
+      if (help) {
+        setHelp(null);
+      } else if (preview) {
+        window.history.back();
+      } else if (viewingStrategy) {
+        window.history.back();
+      } else if (page === "create") {
+        navigate("dashboard");
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [help, page, preview, viewingStrategy]);
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timer = window.setTimeout(() => setToast(""), 3000);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const sortedStrategies = useMemo(
+    () => [...strategies].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    [strategies],
+  );
+
+  const navigate = (next) => {
+    window.location.hash = next === "create" ? "create" : "strategies";
+    setPage(next);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
+  const startCreate = () => {
+    setDraft(cloneForm(SAMPLE_FORM));
+    setEditingId(null);
+    setPreview(null);
+    navigate("create");
+  };
+
+  const editStrategy = (strategy) => {
+    setDraft(cloneForm(strategy.config));
+    setEditingId(strategy.id);
+    setPreview(null);
+    setViewingStrategy(null);
+    navigate("create");
+  };
+
+  const runPreview = () => {
+    const error = validateGridForm(draft);
+    if (error) {
+      setToast(error);
+      return;
+    }
+    setPreview(calculateGrid(draft));
+    window.location.hash = "create/preview";
+  };
+
+  const closePreview = () => {
+    if (window.location.hash.endsWith("/preview")) {
+      window.history.back();
+    } else {
+      setPreview(null);
+    }
+  };
+
+  const viewStrategy = (strategy) => {
+    setViewingStrategy(strategy);
+    window.location.hash = "strategies/view";
+  };
+
+  const closeViewingStrategy = () => {
+    if (window.location.hash.endsWith("/view")) {
+      window.history.back();
+    } else {
+      setViewingStrategy(null);
+    }
+  };
+
+  const savePreview = () => {
+    if (!editingId && strategies.length >= MAX_STRATEGIES) {
+      setToast(`æœ€å¤šåªèƒ½åˆ›å»º ${MAX_STRATEGIES} ä¸ªç½‘æ ¼ç­–ç•¥ã€‚`);
+      return;
+    }
+
+    const now = new Date().toISOString();
+    setStrategies((current) => {
+      const existing = current.find((item) => item.id === editingId);
+      const item = {
+        id: editingId || crypto.randomUUID(),
+        status: existing?.status || "pending",
+        createdAt: existing?.createdAt || now,
+        updatedAt: now,
+        config: cloneForm(draft),
+        result: preview,
+      };
+      return existing
+        ? current.map((strategy) => (strategy.id === editingId ? item : strategy))
+        : [...current, item];
+    });
+    setPreview(null);
+    setEditingId(null);
+    setToast("ç­–ç•¥å·²ä¿å­˜åˆ°æœ¬æœº");
+    navigate("dashboard");
+  };
+
+  const deleteStrategy = (id) => {
+    const strategy = strategies.find((item) => item.id === id);
+    if (!strategy || !window.confirm(`ç¡®å®šåˆ é™¤â€œ${strategy.result.name}â€ç½‘æ ¼ç­–ç•¥å—ï¼Ÿ`)) return;
+    setStrategies((current) => current.filter((item) => item.id !== id));
+  };
+
+  return (
+    <>
+      {page === "create" ? (
+        <CreateStrategy
+          draft={draft}
+          setDraft={setDraft}
+          onPreview={runPreview}
+          onHelp={setHelp}
+        />
+      ) : (
+        <Dashboard
+          strategies={sortedStrategies}
+          onCreate={startCreate}
+          onView={viewStrategy}
+          onEdit={editStrategy}
+          onToggle={(id) =>
+            setStrategies((current) =>
+              current.map((item) =>
+                item.id === id
+                  ? {
+                      ...item,
+                      status: item.status === "running" ? "pending" : "running",
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : item,
+              ),
+            )
+          }
+          onDelete={deleteStrategy}
+        />
+      )}
+
+      {preview && (
+        <ResultPanel
+          result={preview}
+          onReset={closePreview}
+          onSave={savePreview}
+        />
+      )}
+      {viewingStrategy && (
+        <ResultPanel
+          result={viewingStrategy.result}
+          savedView
+          onReset={closeViewingStrategy}
+          onEdit={() => editStrategy(viewingStrategy)}
+        />
+      )}
+      <HelpDialog content={help} onClose={() => setHelp(null)} />
+      {toast && <div className="top-toast" role="alert">{toast}</div>}
+    </>
+  );
+}
